@@ -7,8 +7,12 @@
 #include <stdio.h>
 #include <cmath>
 // 3rd Party
-#include "gsl_errno.h"
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_odeiv.h>
+#include <gsl/gsl_matrix.h>
 // Internal
+
+// Namespace(s)
 using namespace std;
 
 /*
@@ -184,6 +188,33 @@ int func (double t, const double y[], double f[], void *params)
 
     return GSL_SUCCESS; 
 } 
+
+int foo () {
+    // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
+    double mu = 10;
+    double time = 0;//#Double_t
+    double phistep = 0.1;//Double_t
+    double txinit = 0.1;//Double_t
+    double tyinit = 0.1;//Double_t
+    double tzinit = 0.1;//Double_t
+    double tpparinit = 0.1;//Double_t
+    double ene = 18001; // is in [eV]
+    double dphi = 0;//Double_t
+    double t1 = 100.0;
+    double h = phistep;
+    double y[6] = {txinit, tyinit, tzinit, tpparinit, ene, dphi};
+
+    const gsl_odeiv_step_type * T = gsl_odeiv_step_rk8pd;
+    gsl_odeiv_step * stepper = gsl_odeiv_step_alloc(T, 6);
+    gsl_odeiv_control * controller = gsl_odeiv_control_y_new(1e-8, 0.0);
+    gsl_odeiv_evolve * evolver = gsl_odeiv_evolve_alloc(6);
+    gsl_odeiv_system sys = {func, NULL, 6, &mu};
+
+    int status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+
+    return 0;
+
+}
 
 int main() {
     printf("I don't do anything yet!\nThanks for playing.\n");
