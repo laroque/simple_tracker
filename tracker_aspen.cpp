@@ -216,7 +216,7 @@ int foo () {
     double tpparinit = 0.1;//Double_t
     double ene = 18001; // is in [eV]
     double dphi = 0;//Double_t
-    double t1 = 100.0;
+    double t1 = 100.0;//ns
     double h = phistep;
     double y[6] = {txinit, tyinit, tzinit, tpparinit, ene, dphi};
 
