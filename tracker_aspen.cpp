@@ -73,8 +73,8 @@ void get_b_field(const double y[], double bvec[])
     }
 }
 
+/* YOU DON'T HAVE ANY NEED FOR THIS
 //calculates the drive frequency at the present time 
-/*
 double wda(double t)
 {
     //  cout << "wda " << nsweep << " " << me << endl;
@@ -89,9 +89,7 @@ double wda(double t)
 }
 */
 
-
-
-/*
+/* YOU ALSO HAVE NO NEED FOR ANY OF THIS
 //calculates the electron cyclotron radius at the present time 
 double rda(double t)
 {
@@ -144,7 +142,8 @@ int func (double t, const double y[], double f[], void *params)
 
     f[5] = wda - w0 * oogamma; //in rad/nanosecond
     //f[5] = wda(t) - w0 * oogamma; //in rad/nanosecond
-    
+
+/* AGAIN, DON'T NEED ANYTHING HERE
     // y[0,1,2] = x, y, z
     // y[3] = ppar (momentum parallel to guiding center motion) 
     // y[4] = total particle kinetic energy
@@ -186,10 +185,12 @@ int func (double t, const double y[], double f[], void *params)
 //    f[1] /= 1e9;
 //    f[2] /= 1e9;
 //    f[3] /= 1e9;
+*/
     f[0]=0;
     f[1]=0;
     f[2]=0;
     f[3]=0;
+    /* YOU GUESSED IT.... DON'T WANT ANY OF THIS
     // Doppler shift term: relative phase between particle and microwave changes with Z according to the equation dPhi/dz = c/wda.   So dPhi/dt = dPhi/dz * dz/dt, and f[2] is dz/dt in meters per nanosecond.  Sign is arbitrary; it depends which way the microwaves are propagating.  In principle they could propagate in any direction, and you could have a Dopplar shift depending on dx/dt or whatever.    
 //    f[5] += wda(t) / c * f[2];  
 //
@@ -201,6 +202,7 @@ int func (double t, const double y[], double f[], void *params)
 //        cout << t << " " <<  qesi << " " <<  ppar << " " <<  bz << " " <<
 //           btot << " " <<  f[2] << " " <<  y[2] << " " <<  endl;
 //    }
+    */
 
     return GSL_SUCCESS; 
 } 
@@ -217,7 +219,7 @@ int foo ()
     double tpparinit = 0.1;//Double_t
     double ene = 18001; // is in [eV]
     double dphi = 0;//Double_t
-    double t1 = 100.0;//ns
+    double t1 = 100.0;//100.0;//ns
     double h = phistep;
     double y[6] = {txinit, tyinit, tzinit, tpparinit, ene, dphi};
 
@@ -227,8 +229,47 @@ int foo ()
     gsl_odeiv_evolve * evolver = gsl_odeiv_evolve_alloc(6);
     gsl_odeiv_system sys = {func, NULL, 6, &mu};
 
+    int status = GSL_SUCCESS;
+    t1=1e9;
+    while (time < t1) {
+        status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+        cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    }
+    /*
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
     int status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+   */ 
 
     return 0;
 
