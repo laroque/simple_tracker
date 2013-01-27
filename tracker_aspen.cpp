@@ -37,8 +37,8 @@ int nsweep;
 int iswf;
 int iswd;
 double econst = 1000;
-double wda = w0//eV,ns,GHz
-double power0 = 1e-15//check this for units
+double wda = w0;//eV,ns,GHz
+double power0 = 1e-15;//check this for units
 
 void get_e_field(const double y[], double evec[])
 {
@@ -205,7 +205,8 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int foo () {
+int foo ()
+{
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
     double time = 0;//#Double_t
@@ -227,12 +228,14 @@ int foo () {
     gsl_odeiv_system sys = {func, NULL, 6, &mu};
 
     int status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+    cout << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
 
     return 0;
 
 }
 
 int main() {
+    int foop = foo();
     printf("I don't do anything yet!\nThanks for playing.\n");
     return 0;
 }
