@@ -207,7 +207,7 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int foo ()
+int foo (double t1, double ene)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
@@ -217,9 +217,9 @@ int foo ()
     double tyinit = 0.1;//Double_t
     double tzinit = 0.1;//Double_t
     double tpparinit = 0.1;//Double_t
-    double ene = 18001; // is in [eV]
+    //double ene = 18001; // is in [eV]
     double dphi = 0;//Double_t
-    double t1 = 100.0;//100.0;//ns
+    //double t1 = 4e5;//100.0;//ns
     double h = phistep;
     double y[6] = {txinit, tyinit, tzinit, tpparinit, ene, dphi};
 
@@ -230,53 +230,25 @@ int foo ()
     gsl_odeiv_system sys = {func, NULL, 6, &mu};
 
     int status = GSL_SUCCESS;
-    t1=1e9;
     while (time < t1) {
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
         cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
     }
-    /*
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    int status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-    status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-    cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
-   */ 
 
     return 0;
 
 }
 
-int main() {
-    int foop = foo();
-    printf("I don't do anything yet!\nThanks for playing.\n");
-    return 0;
+int main(int argc, char* argv[]) {
+    //int foop = foo();
+    if (argc != 3) {
+        cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
+        return 1;
+    } else {
+        double time_f= atof(argv[1]);
+        double energy_i= atof(argv[2]);
+        int foop = foo(time_f, energy_i);
+        printf("I don't do anything yet!\nThanks for playing.\n");
+        return 0;
+    }
 }
