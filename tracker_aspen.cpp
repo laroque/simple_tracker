@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <cmath>
+#include <fstream>
 // 3rd Party
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
@@ -241,6 +242,24 @@ int foo (double t1, double ene)
 
 int main(int argc, char* argv[]) {
     //int foop = foo();
+    ifstream dum;
+    ofstream outputfile;
+    dum.open("foop.txt");
+    if (dum) {
+        cout << "file already there" << endl;
+        dum.close();
+        return 1;
+    } else {
+        outputfile.open("foop.txt");
+        cout << "file open for writing" << endl;
+    }
+ /*   if (dum.open("foop.txt", "r")!=NULL) {
+        cout << "output file already exists!" << endl << "aborting" << endl;
+        return 0;
+    }*/
+//    outputfile.open("foop.txt");
+    outputfile << "something 3" << endl;
+    outputfile.close();
     if (argc != 3) {
         cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
         return 1;
