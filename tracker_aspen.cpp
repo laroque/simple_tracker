@@ -213,7 +213,6 @@ int func (double t, const double y[], double f[], void *params)
 int foo (double t1, double ene, ofstream& filename)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
-    filename << "something simple" << endl;
     double mu = 10;
     double time = 0;//#Double_t
     double phistep = 0.1;//Double_t
@@ -236,7 +235,7 @@ int foo (double t1, double ene, ofstream& filename)
     int status = GSL_SUCCESS;
     while (time < t1) {
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-        cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+        filename << time << " " << y[4] << " " << y[5] << " " << y[6] << endl;
     }
 
     return 0;
@@ -255,7 +254,6 @@ int main(int argc, char* argv[]) {
         stringstream filename;
         filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
         ifstream dum(filename.str().c_str());
-        cout << "filename is: " << filename.str() << endl;
         if (dum) {
             cout << "file already there" << endl;
             dum.close();
@@ -266,13 +264,11 @@ int main(int argc, char* argv[]) {
         //outputfile.open("footext.txt");
         if (outputfile != NULL) {
             int foop = foo(time_f, energy_i, outputfile);
-            printf("some stuff in the file\n");
         } else {
             printf("file is NULL\n");
+            return 1;
+            outputfile.close();
         }
-        //int foop = foo(time_f, energy_i, outputfile);
-        printf("I don't do anything yet!\nThanks for playing.\n");
-        outputfile.close();
         return 0;
     }
 }

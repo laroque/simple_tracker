@@ -23,6 +23,9 @@ Makefile
 # Swap files
 *.swp
 
+# Data files
+timeF*energyI*.txt
+
 # Executables
 hello
 tracker
