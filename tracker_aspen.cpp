@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <cmath>
 #include <fstream>
+#include <sstream>
+#include <string>
 // 3rd Party
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
@@ -208,9 +210,10 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int foo (double t1, double ene)
+int foo (double t1, double ene, ofstream& filename)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
+    filename << "something simple" << endl;
     double mu = 10;
     double time = 0;//#Double_t
     double phistep = 0.1;//Double_t
@@ -242,32 +245,34 @@ int foo (double t1, double ene)
 
 int main(int argc, char* argv[]) {
     //int foop = foo();
-    ifstream dum;
-    ofstream outputfile;
-    dum.open("foop.txt");
-    if (dum) {
-        cout << "file already there" << endl;
-        dum.close();
-        return 1;
-    } else {
-        outputfile.open("foop.txt");
-        cout << "file open for writing" << endl;
-    }
- /*   if (dum.open("foop.txt", "r")!=NULL) {
-        cout << "output file already exists!" << endl << "aborting" << endl;
-        return 0;
-    }*/
-//    outputfile.open("foop.txt");
-    outputfile << "something 3" << endl;
-    outputfile.close();
+   // outputfile << "something 3" << endl;
     if (argc != 3) {
         cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
         return 1;
     } else {
         double time_f= atof(argv[1]);
         double energy_i= atof(argv[2]);
-        int foop = foo(time_f, energy_i);
+        stringstream filename;
+        filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
+        ifstream dum(filename.str().c_str());
+        cout << "filename is: " << filename.str() << endl;
+        if (dum) {
+            cout << "file already there" << endl;
+            dum.close();
+            return 1;
+        }
+        ofstream outputfile;
+        outputfile.open(filename.str().c_str());
+        //outputfile.open("footext.txt");
+        if (outputfile != NULL) {
+            int foop = foo(time_f, energy_i, outputfile);
+            printf("some stuff in the file\n");
+        } else {
+            printf("file is NULL\n");
+        }
+        //int foop = foo(time_f, energy_i, outputfile);
         printf("I don't do anything yet!\nThanks for playing.\n");
+        outputfile.close();
         return 0;
     }
 }
