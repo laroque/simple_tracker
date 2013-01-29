@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
         filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
         ifstream dum(filename.str().c_str());
         if (dum) {
-            cout << "file already there" << endl;
+            cout << "Finished this energy previously, not repeating: " << filename.str() << endl;
             dum.close();
             return 1;
         }

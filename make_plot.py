@@ -8,13 +8,13 @@ from os import getcwd
 
 # global ish things
 file_prefix = getcwd()
-energies = [17999 + 0.1 * i for i in range(21)]
-t_final = 1e4
+energies = [17989 + 1 * i for i in range(21)]
+t_final = 1e9
 
 print('foop')
 filenames = []
 for energy in energies:
-    asim = Popen(['./aspen', str(t_final), str(18001)], stdout=PIPE)
+    asim = Popen(['./aspen', str(t_final), str(energy)], stdout=PIPE)
     asim.wait()
     lines = [line.rstrip() for line in asim.stdout.readlines() if line.startswith('Finished')]
     filenames.append([file_prefix + '/' + line.split()[-1] for line in lines])
@@ -33,7 +33,7 @@ g.stdin.write('set ylabel \"energy\"\n')
 file_cmd_list = []
 for filename in filenames:
     (time,i,energy) = str(filename).split('.txt')[0].split('timeF')[-1].partition('energyI')
-    formatstr = " using 1:2 title 'Energy " + energy + "' with lines"
+    formatstr = " every 30 using 1:2 title 'Energy " + energy + "' with lines"
     file_cmd_list.append("'" + str(filename) + "'" + formatstr)
 g.stdin.write('plot ' + ', \\\n'.join(file_cmd_list) + '\n')
 raw_input('waiting for you to finish looking')
