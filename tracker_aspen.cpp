@@ -6,6 +6,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <string>
 // 3rd Party
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
@@ -207,7 +210,7 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int foo (double t1, double ene)
+int foo (double t1, double ene, ofstream& filename)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
@@ -232,7 +235,7 @@ int foo (double t1, double ene)
     int status = GSL_SUCCESS;
     while (time < t1) {
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-        cout << "time is " << time << "     " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+        filename << time << " " << y[4] << " " << y[5] << " " << y[6] << endl;
     }
 
     return 0;
@@ -241,14 +244,31 @@ int foo (double t1, double ene)
 
 int main(int argc, char* argv[]) {
     //int foop = foo();
+   // outputfile << "something 3" << endl;
     if (argc != 3) {
         cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
         return 1;
     } else {
         double time_f= atof(argv[1]);
         double energy_i= atof(argv[2]);
-        int foop = foo(time_f, energy_i);
-        printf("I don't do anything yet!\nThanks for playing.\n");
+        stringstream filename;
+        filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
+        ifstream dum(filename.str().c_str());
+        if (dum) {
+            cout << "file already there" << endl;
+            dum.close();
+            return 1;
+        }
+        ofstream outputfile;
+        outputfile.open(filename.str().c_str());
+        //outputfile.open("footext.txt");
+        if (outputfile != NULL) {
+            int foop = foo(time_f, energy_i, outputfile);
+        } else {
+            printf("file is NULL\n");
+            return 1;
+            outputfile.close();
+        }
         return 0;
     }
 }
