@@ -13,8 +13,11 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
 #include <gsl/gsl_matrix.h>
+       //ROOT in particular
 #include "TObject.h"
+#include "TFile.h"
 #include "TNtuple.h"
+#include "TMath.h"
 // Internal
 
 // Namespace(s)
@@ -43,7 +46,11 @@ double bperturb_b = 0 ;
 //int iswd;
 double econst = 1000;
 double wda = w0;//eV,ns,GHz
-double power0 = 1e-7;//check this for units
+double power0 = 1e-4;//check this for units
+
+// huzzah for root
+TFile* tfout;
+TNtuple* ntout;
 
 void get_e_field(const double y[], double evec[])
 {
@@ -87,8 +94,10 @@ int func (double t, const double y[], double f[], void *params)
    
     double oogamma = me / (me + y[4]);
     double beta = sqrt(1 - oogamma * oogamma);
-    f[4] = power0 * sqrt(3 * y[4] * me) * sin(y[5]) * 0.3 -
-         3.201e-9 * w0 * oogamma * w0 * oogamma * beta * beta / (1 - beta * beta); //in eV/nanosecond
+    /*f[4] = power0 * sqrt(3 * y[4] * me) * sin(y[5]) * 0.3 -
+         3.201e-9 * w0 * oogamma * w0 * oogamma * beta * beta / (1 - beta * beta); //in eV/nanosecond*/
+    f[4] = power0 * sqrt(2 * y[4] * me) * sin(y[5]) * 0.3 -
+        3.201e-9 * w0 * oogamma * w0 * oogamma * beta * beta / (1 - beta * beta); //is in ev/nanosecond
 
     f[5] = wda - w0 * oogamma; //in rad/nanosecond
     //f[5] = wda(t) - w0 * oogamma; //in rad/nanosecond
@@ -101,18 +110,18 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int RunStepper(double t1, double ene, ofstream& filename)
+int RunStepper(double t1, double ene, double dphi)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
     double time = 0;//#Double_t
-    double phistep = 0.1;//Double_t
+    double phistep = 0.01;//Double_t
     double txinit = 0.1;//Double_t
     double tyinit = 0.1;//Double_t
     double tzinit = 0.1;//Double_t
     double tpparinit = 0.1;//Double_t
     //double ene = 18001; // is in [eV]
-    double dphi = 0;//Double_t
+    //double dphi = 0;//Double_t
     //double t1 = 4e5;//100.0;//ns
     double h = phistep;
     double y[6] = {txinit, tyinit, tzinit, tpparinit, ene, dphi};
@@ -124,40 +133,52 @@ int RunStepper(double t1, double ene, ofstream& filename)
     gsl_odeiv_system sys = {func, NULL, 6, &mu};
 
     int status = GSL_SUCCESS;
+    double wrapphase;
     while (time < t1) {
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-        filename << time << " " << y[4] << " " << y[5] << " " << endl;
+        h = phistep; //evolve_apply updates the recommended step size, set it back so that it isn't too big
+        wrapphase = y[5] - 2 * TMath::Pi() * int(y[5] / (2 * TMath::Pi()));
+        //filename << time << " " << y[4] << " " << y[5] << endl;
+        ntout->Fill(0,time,y[4],y[5],wrapphase);
     }
     return 0;
 
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
+    if (argc != 4) {
+        cout << "usage: $ ./aspen <final_time> <initial_energy> <initial_phase>" << endl;
         return 1;
     } else {
         double time_f= atof(argv[1]);
-        double energy_i= atof(argv[2]);
+        double energy_i = atof(argv[2]);
+        double phase_i = atof(argv[3]);
         stringstream filename;
         filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
-        ifstream dum(filename.str().c_str());
-        if (dum) {
-            cout << "Finished this energy previously, not repeating: " << filename.str() << endl;
-            dum.close();
-            return 1;
-        }
-        ofstream outputfile;
-        outputfile.open(filename.str().c_str());
-        if (outputfile != NULL) {
-            RunStepper(time_f, energy_i, outputfile);
+//        ifstream dum(filename.str().c_str());
+//        if (dum) {
+//            cout << "Finished this energy previously, not repeating: " << filename.str() << endl;
+//            dum.close();
+//            return 1;
+//        }
+//        ofstream outputfile;
+//        outputfile.open(filename.str().c_str());
+        tfout = new TFile(filename.str().c_str(), "recreate");
+
+        ntout = new TNtuple("nt", "nt", "i:t:ene:ph:rph");
+        //if (outputfile != NULL) {
+        if (tfout != NULL) {
+            wda = w0*(18000.0) / (18000.0 + me);
+            RunStepper(time_f, energy_i, phase_i);
         } else {
             printf("file is NULL\n");
-            outputfile.close();
+            //outputfile.close();
             return 1;
         }
-        cout << "Finished writing file: " << filename.str() << endl;
-        outputfile.close();
+        cout << "Finished writing file: " << filename.str() << " " << ntout->GetEntries() << endl;
+        //outputfile.close();
+        ntout->Write();
+        tfout->Close();
         return 0;
     }
 }
