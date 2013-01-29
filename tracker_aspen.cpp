@@ -237,7 +237,6 @@ int foo (double t1, double ene, ofstream& filename)
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
         filename << time << " " << y[4] << " " << y[5] << " " << y[6] << endl;
     }
-
     return 0;
 
 }
@@ -266,9 +265,11 @@ int main(int argc, char* argv[]) {
             int foop = foo(time_f, energy_i, outputfile);
         } else {
             printf("file is NULL\n");
-            return 1;
             outputfile.close();
+            return 1;
         }
+        cout << "Finished writing file: " << filename.str() << endl;
+        outputfile.close();
         return 0;
     }
 }
