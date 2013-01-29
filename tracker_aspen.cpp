@@ -13,6 +13,8 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
 #include <gsl/gsl_matrix.h>
+#include "TObject.h"
+#include "TNtuple.h"
 // Internal
 
 // Namespace(s)
@@ -41,7 +43,7 @@ double bperturb_b = 0 ;
 //int iswd;
 double econst = 1000;
 double wda = w0;//eV,ns,GHz
-double power0 = 1e-15;//check this for units
+double power0 = 1e-7;//check this for units
 
 void get_e_field(const double y[], double evec[])
 {
@@ -85,7 +87,7 @@ int func (double t, const double y[], double f[], void *params)
    
     double oogamma = me / (me + y[4]);
     double beta = sqrt(1 - oogamma * oogamma);
-    f[4] = power0 * sqrt(2 * y[4] * me) * sin(y[5]) * 0.3 -
+    f[4] = power0 * sqrt(3 * y[4] * me) * sin(y[5]) * 0.3 -
          3.201e-9 * w0 * oogamma * w0 * oogamma * beta * beta / (1 - beta * beta); //in eV/nanosecond
 
     f[5] = wda - w0 * oogamma; //in rad/nanosecond
@@ -124,7 +126,7 @@ int RunStepper(double t1, double ene, ofstream& filename)
     int status = GSL_SUCCESS;
     while (time < t1) {
         status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
-        filename << time << " " << y[4] << " " << y[5] << " " << y[6] << endl;
+        filename << time << " " << y[4] << " " << y[5] << " " << endl;
     }
     return 0;
 
