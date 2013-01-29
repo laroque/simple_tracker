@@ -21,24 +21,24 @@ using namespace std;
 /*
 Time to declare tons of things at global scope. Yay for != best practices
 */
-double c = 0.299792458; // speed of light in meters per ns 
+//double c = 0.299792458; // speed of light in meters per ns 
 double w0=27.9925;  //nrel cyclotron frequency in GHz
 double me = 510998.902; // electron mass in eV
-double mesi = 9.10838188e-31; // electron mass in kg
-double qesi = 1.60217646e-19; // electron charge in Coulombs; 
-double qe = 1; // electron charge has been folded into "B" units, I think
-double dept = 0; //common-block e field strength (set in code)
-double sweept[500],sweepf[500],sweepd[500]; //sweep parameters
-double nstoevoc = 5.34428542119e-28; //momentum: convert ev/c to J*s 
+//double mesi = 9.10838188e-31; // electron mass in kg
+//double qesi = 1.60217646e-19; // electron charge in Coulombs; 
+//double qe = 1; // electron charge has been folded into "B" units, I think
+//double dept = 0; //common-block e field strength (set in code)
+//double sweept[500],sweepf[500],sweepd[500]; //sweep parameters
+//double nstoevoc = 5.34428542119e-28; //momentum: convert ev/c to J*s 
 bool eperturb = false;
 double eperturb_q = 0 ;
 bool bperturb = false;
 double bperturb_b = 0 ;
-int useconstamp=0;
-int debug=0; //debug level flag
-int nsweep;
-int iswf;
-int iswd;
+//int useconstamp=0;
+//int debug=0; //debug level flag
+//int nsweep;
+//int iswf;
+//int iswd;
 double econst = 1000;
 double wda = w0;//eV,ns,GHz
 double power0 = 1e-15;//check this for units
