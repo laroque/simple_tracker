@@ -1,5 +1,6 @@
 #/usr/bin/python2
 
+# imports
 #standard
 from subprocess import Popen, PIPE
 from os import getcwd
@@ -11,6 +12,7 @@ file_prefix = getcwd()
 energies = [17989 + 1 * i for i in range(21)]
 t_final = 1e9
 
+# do the runs and collect the resulting filenames
 print('foop')
 filenames = []
 for energy in energies:
@@ -21,10 +23,8 @@ for energy in energies:
 filenames = [item for sublist in filenames for item in sublist]
 print('doop')
 
-#fix from here on
-
+# setup gnuplot
 g=Popen("gnuplot", stdin=PIPE, shell=False)
-# do some formatting stuff here
 g.stdin.write('set title "Title"\n')
 g.stdin.write('set tics nomirror\n')
 g.stdin.write('set xlabel \"dphase\"\n')
@@ -38,17 +38,6 @@ for filename in filenames:
 g.stdin.write('plot ' + ', \\\n'.join(file_cmd_list) + '\n')
 raw_input('waiting for you to finish looking')
 
-#lines = [line.decode().strip() for line in asim.stdout.readlines()]
-#energies = []
-#dphases = []
-#print('loopboop')
-#for line in lines:
-#    if line.split()[0] == 'time':
-#        energies.append(line.split()[7])
-#        dphases.append(line.split()[8])
-#datasets = sorted(zip(dphases, energies))
-#print('fin')
-#
 ##the part to make the plot
 #plot = usegnuplot.Gnuplot()
 #plot.gp("set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2")

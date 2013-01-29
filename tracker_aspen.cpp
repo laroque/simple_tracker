@@ -76,61 +76,6 @@ void get_b_field(const double y[], double bvec[])
     }
 }
 
-/* YOU DON'T HAVE ANY NEED FOR THIS
-//calculates the drive frequency at the present time 
-double wda(double t)
-{
-    //  cout << "wda " << nsweep << " " << me << endl;
-    for (int i=0; i < nsweep-1; i++) {
-        if (t >= sweept[i] && t < sweept[i+1]) { //return an interpolated ramp 
-            double tmp =  sweepf[i] + (t - sweept[i]) * (sweepf[i+1] - sweepf[i]) / (sweept[i+1] - sweept[i]); 
-            return w0 * me / (me + tmp);
-        }
-    }
-
-    return w0 * me / (me + sweepf[nsweep-1]); 
-}
-*/
-
-/* YOU ALSO HAVE NO NEED FOR ANY OF THIS
-//calculates the electron cyclotron radius at the present time 
-double rda(double t)
-{
-//    cout << "wda " << nsweep << " " << me << endl;
-    for (int i=0; i < nsweep-1; i++) {
-        if (t >= sweept[i] && t < sweept[i+1]) { //return an interpolated ramp 
-            double tmp =  sweepf[i] + (t - sweept[i])*(sweepf[i+1]-sweepf[i])/(sweept[i+1]-sweept[i]); 
-        return sqrt(tmp);
-        }
-    }
-
-    return sqrt(sweepf[nsweep-1]); 
-}
-
-//calculates the drive frequency at the present time 
-double power(double t)
-{
-//    cout << nsweep;
-    for (int i=0; i<nsweep-1; i++) {
-//        cout << "." ;
-        if (t >= sweept[i] && t < sweept[i+1]) { //return an interpolated ramp 
-//            cout << "power calc: " << i << " " << t << " " << sweepd[i] + (t - sweept[i])*(sweepd[i+1]-sweepd[i])/(sweept[i+1]-sweept[i]) << endl;
-            if (useconstamp != 0) { // set ramp amplitude to correct for drive freq.
-                return (sweepd[i] + (t - sweept[i]) * (sweepd[i+1] - sweepd[i]) / (sweept[i+1] - sweept[i])) * 31.6227766 / rda(t); //normalized to give unmodified power at E=1000 
-            }
-            else {
-                return sweepd[i] + (t - sweept[i]) * (sweepd[i+1] - sweepd[i]) / (sweept[i+1] - sweept[i]); 
-            }
-        }
-    }
-
-//    cout << " return last " << sweepd[nsweep-1] << endl; 
-    return sweepd[nsweep-1]; 
-}
-
-*/
-
-
 int func (double t, const double y[], double f[], void *params)
 {  
     //mostly decoupled: synchrotron oscillations 
@@ -146,71 +91,15 @@ int func (double t, const double y[], double f[], void *params)
     f[5] = wda - w0 * oogamma; //in rad/nanosecond
     //f[5] = wda(t) - w0 * oogamma; //in rad/nanosecond
 
-/* AGAIN, DON'T NEED ANYTHING HERE
-    // y[0,1,2] = x, y, z
-    // y[3] = ppar (momentum parallel to guiding center motion) 
-    // y[4] = total particle kinetic energy
-    // y[5] = synchrotron orbit phase
-    // see Zhang et. al. appendix for possible improvements
-//    // maybe add parameters for synchrotron phase, energy
-//    double ex, ey, ez; 
-//    double bx, by, bz; 
-//    double ppar, btot, bsquared; 
-//    
-//    double bvec[4]; //3-vector; 4th component is total field strength.     
-//    double evec[3];
-//
-//    get_e_field(y, evec); // puts LOCAL electric field into evec[3] by reference;
-//    get_b_field(y, bvec); // puts LOCAL magnetic field into bvec[3] by reference;
-//
-//    // should be in units "volts per meter" 
-//    ex = evec[0];
-//    ey = evec[1];
-//    ez = evec[2];
-//    //should be in kg*m/s
-//    //oogamma provides all of the relativistic correction
-//    ppar = oogamma * y[3] / mesi;  //and we'll pre-divide by the SI electron mass
-//    // magnetic field should be in Tesla 
-//    bx = bvec[0];  
-//    by = bvec[1]; 
-//    bz = bvec[2]; // w0 is in GHz, 177 = frequency when B=1T.  
-//    btot = bvec[3];  //scalar magnetic field strength
-//    bsquared = bvec[3] * bvec[3];  //scalar magnetic field strength
-//
-//    f[0] =                  - ey*bz/bsquared  + ez*by/bsquared + ppar*bx/btot; 
-//    f[1] =  ex*bz/bsquared                    - ez*bx/bsquared + ppar*by/btot; 
-//    f[2] = -ex*by/bsquared  + ey*bx/bsquared                   + ppar*bz/btot; 
-//    f[3] = -qesi*ex*bx/btot - qesi*ey*by/btot - qesi*ez*bz/btot; 
-//
-//    //reduce it all by a factor of 10^9 since the time units are nanoseconds
-//
-//    f[0] /= 1e9;
-//    f[1] /= 1e9;
-//    f[2] /= 1e9;
-//    f[3] /= 1e9;
-*/
     f[0]=0;
     f[1]=0;
     f[2]=0;
     f[3]=0;
-    /* YOU GUESSED IT.... DON'T WANT ANY OF THIS
-    // Doppler shift term: relative phase between particle and microwave changes with Z according to the equation dPhi/dz = c/wda.   So dPhi/dt = dPhi/dz * dz/dt, and f[2] is dz/dt in meters per nanosecond.  Sign is arbitrary; it depends which way the microwaves are propagating.  In principle they could propagate in any direction, and you could have a Dopplar shift depending on dx/dt or whatever.    
-//    f[5] += wda(t) / c * f[2];  
-//
-//    if (debug==60) {
-//        cout << t << " " << f[4] << " " << f[5] << " via " << wda(t) <<
-//            " - " << w0 / (me + y[4]) << " " <<  y[2] << " " << f[2] << endl;
-//    }
-//    if (debug==61) {
-//        cout << t << " " <<  qesi << " " <<  ppar << " " <<  bz << " " <<
-//           btot << " " <<  f[2] << " " <<  y[2] << " " <<  endl;
-//    }
-    */
 
     return GSL_SUCCESS; 
 } 
 
-int foo (double t1, double ene, ofstream& filename)
+int RunStepper(double t1, double ene, ofstream& filename)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
@@ -242,8 +131,6 @@ int foo (double t1, double ene, ofstream& filename)
 }
 
 int main(int argc, char* argv[]) {
-    //int foop = foo();
-   // outputfile << "something 3" << endl;
     if (argc != 3) {
         cout << "usage: $ ./aspen <final_time> <initial_energy>" << endl;
         return 1;
@@ -260,9 +147,8 @@ int main(int argc, char* argv[]) {
         }
         ofstream outputfile;
         outputfile.open(filename.str().c_str());
-        //outputfile.open("footext.txt");
         if (outputfile != NULL) {
-            int foop = foo(time_f, energy_i, outputfile);
+            RunStepper(time_f, energy_i, outputfile);
         } else {
             printf("file is NULL\n");
             outputfile.close();
