@@ -46,7 +46,7 @@ double bperturb_b = 0 ;
 //int iswd;
 double econst = 1000;
 double wda = w0;//eV,ns,GHz
-double power0 = 1e-4;//check this for units
+double power0 = 1e-7;//check this for units
 
 // huzzah for root
 TFile* tfout;
@@ -110,12 +110,12 @@ int func (double t, const double y[], double f[], void *params)
     return GSL_SUCCESS; 
 } 
 
-int RunStepper(double t1, double ene, double dphi)
+int RunStepper(double t1, double ene, double dphi, int iref, int jref)
 {
     // Dammit, I'm just blindly applying Ben's stuff here... it would be better if I knew what was going on
     double mu = 10;
     double time = 0;//#Double_t
-    double phistep = 0.01;//Double_t
+    double phistep = 1.0;//Double_t
     double txinit = 0.1;//Double_t
     double tyinit = 0.1;//Double_t
     double tzinit = 0.1;//Double_t
@@ -135,11 +135,11 @@ int RunStepper(double t1, double ene, double dphi)
     int status = GSL_SUCCESS;
     double wrapphase;
     while (time < t1) {
-        status = gsl_odeiv_evolve_apply (evolver, controller, stepper, &sys, &time, t1, &h, y);
+        status = gsl_odeiv_evolve_apply(evolver, controller, stepper, &sys, &time, t1, &h, y);
         h = phistep; //evolve_apply updates the recommended step size, set it back so that it isn't too big
-        wrapphase = y[5] - 2 * TMath::Pi() * int(y[5] / (2 * TMath::Pi()));
+        wrapphase = y[5] - 2 * TMath::Pi() * int(y[5] / (2 * TMath::Pi())-1);
         //filename << time << " " << y[4] << " " << y[5] << endl;
-        ntout->Fill(0,time,y[4],y[5],wrapphase);
+        ntout->Fill(iref, jref, time, y[4], y[5], wrapphase);
     }
     return 0;
 
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
         double energy_i = atof(argv[2]);
         double phase_i = atof(argv[3]);
         stringstream filename;
-        filename << "timeF" << time_f << "energyI" << energy_i << ".txt";
+        filename << "timeF" << time_f << "energyI" << energy_i << ".root";
 //        ifstream dum(filename.str().c_str());
 //        if (dum) {
 //            cout << "Finished this energy previously, not repeating: " << filename.str() << endl;
@@ -164,12 +164,17 @@ int main(int argc, char* argv[]) {
 //        ofstream outputfile;
 //        outputfile.open(filename.str().c_str());
         tfout = new TFile(filename.str().c_str(), "recreate");
-
-        ntout = new TNtuple("nt", "nt", "i:t:ene:ph:rph");
+        ntout = new TNtuple("nt", "nt", "i:j:t:ene:ph:rph");
         //if (outputfile != NULL) {
         if (tfout != NULL) {
-            wda = w0*(18000.0) / (18000.0 + me);
-            RunStepper(time_f, energy_i, phase_i);
+            for (int i=-100; i<100; i+=10) {
+                for (int j=0; j<=6; j+=2) {
+                    wda = w0 * me / (18000.0 + me);
+                    RunStepper(time_f, energy_i+i, j, i, j);
+                }
+            }
+            //wda = w0 * me / (18000.0 + me);
+            //RunStepper(time_f, energy_i, phase_i);
         } else {
             printf("file is NULL\n");
             //outputfile.close();

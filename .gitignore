@@ -24,7 +24,7 @@ Makefile
 *.swp
 
 # Data files
-timeF*energyI*.txt
+*.root
 
 # Executables
 hello
