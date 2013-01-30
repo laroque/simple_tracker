@@ -46,7 +46,7 @@ double bperturb_b = 0 ;
 //int iswd;
 double econst = 1000;
 double wda = w0;//eV,ns,GHz
-double power0 = 1e-7;//check this for units
+double power0 = 1e-8;//check this for units
 
 // huzzah for root
 TFile* tfout;
@@ -137,8 +137,8 @@ int RunStepper(double t1, double ene, double dphi, int iref, int jref)
     while (time < t1) {
         status = gsl_odeiv_evolve_apply(evolver, controller, stepper, &sys, &time, t1, &h, y);
         h = phistep; //evolve_apply updates the recommended step size, set it back so that it isn't too big
-        wrapphase = y[5] - 2 * TMath::Pi() * int(y[5] / (2 * TMath::Pi())-1);
-        //filename << time << " " << y[4] << " " << y[5] << endl;
+        //while I'm hacking stuff together, I'll really hack it together
+        wrapphase = fmod(fmod(y[5], 2 * TMath::Pi()) + 2*TMath::Pi(), 2*TMath::Pi());
         ntout->Fill(iref, jref, time, y[4], y[5], wrapphase);
     }
     return 0;
@@ -146,13 +146,13 @@ int RunStepper(double t1, double ene, double dphi, int iref, int jref)
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 4) {
+    if (argc != 3) {
         cout << "usage: $ ./aspen <final_time> <initial_energy> <initial_phase>" << endl;
         return 1;
     } else {
         double time_f= atof(argv[1]);
         double energy_i = atof(argv[2]);
-        double phase_i = atof(argv[3]);
+        //double phase_i = atof(argv[3]);
         stringstream filename;
         filename << "timeF" << time_f << "energyI" << energy_i << ".root";
 //        ifstream dum(filename.str().c_str());
@@ -167,10 +167,12 @@ int main(int argc, char* argv[]) {
         ntout = new TNtuple("nt", "nt", "i:j:t:ene:ph:rph");
         //if (outputfile != NULL) {
         if (tfout != NULL) {
-            for (int i=-100; i<100; i+=10) {
-                for (int j=0; j<=6; j+=2) {
-                    wda = w0 * me / (18000.0 + me);
-                    RunStepper(time_f, energy_i+i, j, i, j);
+            for (int i=-15; i<15; i+=1) {
+                for (double j=0; j<=2*TMath::Pi(); j+=2*TMath::Pi()/2.0) {
+                    if (i == 0 || j == TMath::Pi()) {
+                        wda = w0 * me / (18000.0 + me);
+                        RunStepper(time_f, energy_i+i, j, i, j);
+                    }
                 }
             }
             //wda = w0 * me / (18000.0 + me);
